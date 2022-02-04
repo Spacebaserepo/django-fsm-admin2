@@ -1,4 +1,4 @@
 {% for button in transition_buttons %}
-<a href="{{ button.url }}">{{ button.title }}</a>
+<a href="{{ button.url }}" title="{{button.help_text}}">{{ button.title|title }}</a>
 {% if not forloop.last %}&nbsp|&nbsp{% endif %}
 {% endfor %}

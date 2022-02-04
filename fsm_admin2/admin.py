@@ -102,8 +102,6 @@ def _reverse_object_admin_url(obj):
 
 
 def _get_transition_title(transition):
-    if hasattr(transition.target, 'label'):
-        return transition.target.label
     return transition.custom.get('short_description') or transition.name
 
 
@@ -119,11 +117,12 @@ def _get_display_func(field_name):
         if obj is None or (obj is not None and not obj.pk):
             return ''
         transitions = getattr(obj, f'get_available_user_{field_name}_transitions')(self.request.user)
+        transitions = [t for t in transitions if t.custom.get('admin', False)]
 
         info = obj._meta.model._meta.app_label, obj._meta.model._meta.model_name
         url = reverse('admin:%s_%s_transition' % info, kwargs={'object_id': obj.id})
 
-        buttons = [{'url': f'{url}?transition={transition.name}',
+        buttons = [{'url': f'{url}?transition={transition.name}', 'help_text': transition.custom.get('help_text', ''),
                     'title': _get_transition_title(transition)}
                    for transition in transitions]
         return render_to_string(self.fsm_transition_buttons_template, {'transition_buttons': buttons})
