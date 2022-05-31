@@ -56,13 +56,13 @@ class FSMTransitionMixin:
                 else:
                     return render(request,
                                   self.fsm_transition_form_template,
-                                  {'transition': transition, 'form': form}
+                                  {'transition': transition, 'form': form, 'object': obj}
                                   )
             else:
                 form = form_class()
                 return render(request,
                               self.fsm_transition_form_template,
-                              {'transition': transition, 'form': form}
+                              {'transition': transition, 'form': form, 'object': obj}
                               )
         else:
             try:
