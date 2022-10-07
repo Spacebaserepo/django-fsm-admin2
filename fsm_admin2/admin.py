@@ -116,9 +116,15 @@ def _get_display_func(field_name):
     def display_func(self, obj=None):
         if obj is None or (obj is not None and not obj.pk):
             return ''
-        transitions = getattr(obj, f'get_available_user_{field_name}_transitions')(self.request.user)
-        transitions = [t for t in transitions if t.custom.get('admin', False)]
 
+        def _use_in_admin(tr):
+            adm = tr.custom.get('admin', False)
+            if callable(adm):
+                # adm is a method of obj
+                adm = getattr(obj, adm.__name__)()
+            return adm
+        transitions = getattr(obj, f'get_available_user_{field_name}_transitions')(self.request.user)
+        transitions = [t for t in transitions if _use_in_admin(t)]
         info = obj._meta.model._meta.app_label, obj._meta.model._meta.model_name
         url = reverse('admin:%s_%s_transition' % info, kwargs={'object_id': obj.id})
 
